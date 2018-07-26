@@ -1,4 +1,8 @@
-﻿|    Default key(s)    |      In mode      |                           Description                          |
+﻿# WireEdit
+
+## Keys
+
+|    Default key(s)    |      In mode      |                           Description                          |
 |:--------------------:|:-----------------:|:---------------------------------------------------------------|
 |           L          |        None       | Begin select                                                   |
 |           L          |     Selecting     | Load last selection                                            |
