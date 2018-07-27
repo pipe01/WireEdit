@@ -43,7 +43,7 @@ namespace WireEdit.Editors
         public void Preview()
         {
             InPreview = true;
-            Created = CreateGhosts().ToArray();
+            Created = CreateGhosts().Where(o => o != null).ToArray();
         }
 
         public virtual void DeletePreview()

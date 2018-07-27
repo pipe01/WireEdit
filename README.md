@@ -1,4 +1,7 @@
 # WireEdit
+Mod for [The Ultimate Nerd Game](https://iamsodarncool.itch.io/tung) that allows you to create connections much more efficiently.
+
+You can disable the quick guide text in the configuration file.
 
 ## Keys
 
