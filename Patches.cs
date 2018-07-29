@@ -44,7 +44,7 @@ namespace WireEdit
         [PatchMethod("PlaceThingBeingPlaced", PatchType.Postfix)]
         public static void PlaceThingBeingPlacedPostfix(GameObject __state)
         {
-            if (Mover.IsMoving && __state != null)
+            if (Mover.IsMoving && __state != null && !Input.GetKey(KeyCode.LeftControl))
             {
                 Mover.EndMove(__state);
             }
@@ -57,7 +57,7 @@ namespace WireEdit
         [PatchMethod]
         public static void NewBoardBeingPlaced(GameObject NewBoard)
         {
-            if (NewBoard != null && !Input.GetKey(KeyCode.LeftControl))
+            if (NewBoard != null)
                 Mover.BeginMove(NewBoard);
         }
         
