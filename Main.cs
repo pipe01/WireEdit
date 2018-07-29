@@ -2,6 +2,8 @@
 using PiTung.Console;
 using PiTung.Mod_utilities;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static UnityEngine.GUILayout;
 
@@ -47,6 +49,7 @@ namespace WireEdit
         };
         private GUIStyle LabelStyle, EditorEntryStyle;
         private bool ShowGuide;
+        private List<GameObject> Highlighted = new List<GameObject>();
 
         public override void BeforePatch()
         {
@@ -96,23 +99,14 @@ namespace WireEdit
 
         public override void Update()
         {
-            if (Input.GetMouseButtonDown(0)
-                && State.CurrentState == States.Selecting
-                && Physics.Raycast(FirstPersonInteraction.Ray(), out var hit, Settings.ReachDistance, Wire.IgnoreWiresLayermask)
-                && (hit.collider.tag == "Input" || hit.collider.tag == "Output"))
-            {
-                Selection.Instance.Toggle(hit.collider.gameObject);
-            }
+            RunWireHighlight();
+            RunToggleSelection();
+            RunFuckOffSelection();
+            RunPollNumberKeys();
+        }
 
-            if (State.CurrentState != States.None)
-            {
-                SelectionMenu.Instance.FuckOff();
-                SelectionMenu.Instance.SelectedThing = 0;
-
-                if (State.CurrentState == States.Editing && Input.GetMouseButtonDown(0))
-                    State.Fire(Triggers.Confirm);
-            }
-
+        private void RunPollNumberKeys()
+        {
             for (int i = 0; i < NumericKeys.Length; i++)
             {
                 if (Input.GetKeyDown(NumericKeys[i]))
@@ -131,6 +125,111 @@ namespace WireEdit
 
                     break;
                 }
+            }
+        }
+
+        private void RunFuckOffSelection()
+        {
+            if (State.CurrentState != States.None)
+            {
+                SelectionMenu.Instance.FuckOff();
+                SelectionMenu.Instance.SelectedThing = 0;
+
+                if (State.CurrentState == States.Editing && Input.GetMouseButtonDown(0))
+                    State.Fire(Triggers.Confirm);
+            }
+        }
+
+        private void RunToggleSelection()
+        {
+            if (Input.GetMouseButtonDown(0)
+                && State.CurrentState == States.Selecting
+                && Physics.Raycast(FirstPersonInteraction.Ray(), out var hit, Settings.ReachDistance, Wire.IgnoreWiresLayermask)
+                && (hit.collider.tag == "Input" || hit.collider.tag == "Output"))
+            {
+                Selection.Instance.Toggle(hit.collider.gameObject);
+            }
+        }
+
+        private void RunWireHighlight()
+        {
+            if (Input.GetMouseButtonDown(0) && Input.GetKey(KeyCode.LeftControl) && State.CurrentState == States.None)
+            {
+                foreach (var item in Highlighted)
+                {
+                    Highlighter.StopHighlight(item);
+                }
+                Highlighted.Clear();
+
+                if (Physics.Raycast(FirstPersonInteraction.Ray(), out var hit, Settings.ReachDistance)
+                    && hit.collider.tag != "CircuitBoard")
+                {
+                    var wire = hit.collider.GetComponent<Wire>();
+
+                    if (wire != null) //Clicked on wire, highlight it and both ends
+                    {
+                        HighlightWire(wire);
+                    }
+                    else
+                    {
+                        var input = hit.collider.GetComponent<CircuitInput>();
+                        var output = hit.collider.GetComponent<CircuitOutput>();
+
+                        if (input != null) //Clicked on input peg, highlight it and all wires connected to it
+                        {
+                            foreach (var item in input.IIConnections.Cast<Wire>().Concat(input.IOConnections.Cast<Wire>()))
+                            {
+                                HighlightWire(item);
+                            }
+                        }
+                        else if (output != null) //Clicked on output peg, highlight it and all wires connected to it
+                        {
+                            foreach (var item in output.GetIOConnections())
+                            {
+                                HighlightWire(item);
+                            }
+                        }
+                        else //Clicked on component, highlight inputs and outputs and all wires connected to it
+                        {
+                            var component = ComponentPlacer.FullComponent(hit.collider);
+
+                            //Just get all the wires
+                            foreach (var item in
+                                component.GetComponentsInChildren<CircuitInput>().SelectMany(o =>
+                                    o.IIConnections.Cast<Wire>().Concat(
+                                    o.IOConnections.Cast<Wire>()))
+                                .Concat(component.GetComponentsInChildren<CircuitOutput>().SelectMany(o =>
+                                    o.GetIOConnections().Cast<Wire>())))
+                            {
+                                HighlightWire(item);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void HighlightWire(Wire wire)
+            {
+                Highlight(wire.gameObject, 0);
+
+                HighlightComponent(wire.Point1);
+                HighlightComponent(wire.Point2);
+            }
+
+            void HighlightComponent(Transform wireReference)
+            {
+                Highlight(wireReference.parent.gameObject, 3);
+
+                if (wireReference.parent.parent?.tag != "CircuitBoard" && wireReference.parent.parent != null)
+                {
+                    Highlight(wireReference.parent.parent.gameObject, 2);
+                }
+            }
+
+            void Highlight(GameObject obj, int clr)
+            {
+                Highlighted.Add(obj);
+                Highlighter.Highlight(obj, clr);
             }
         }
 
