@@ -8,6 +8,7 @@ You can disable the quick guide text in the configuration file.
 |    Default key(s)    |      In mode      |                           Description                          |
 |:--------------------:|:-----------------:|:---------------------------------------------------------------|
 |           L          |        None       | Begin select                                                   |
+|      Ctrl + LMB      |        None       | Highlight wire and/or both of its ends, or a whole component   |
 |        Delete        |        None       | Delete last job                                                |
 |           L          |     Selecting     | Load last selection                                            |
 |         Enter        |     Selecting     | Confirm selection; begin edit                                  |
@@ -18,3 +19,5 @@ You can disable the quick guide text in the configuration file.
 |        Delete        | Selecting/Editing | Cancel                                                         |
 |        [1 - 4]       |      Editing      | Select job and see preview                                     |
 |     Enter or LMB     |      Editing      | Apply edit if possible                                         |
+
+You can press Left Control when placing down a board to disable wire reconnecting.

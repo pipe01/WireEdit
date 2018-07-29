@@ -29,7 +29,7 @@ namespace WireEdit
         public override string Name => "WireEdit";
         public override string PackageName => "me.pipe01.WireEdit";
         public override string Author => "pipe01";
-        public override Version ModVersion => new Version("1.0.1");
+        public override Version ModVersion => new Version("1.0.2");
         public override string UpdateUrl => "http://pipe0481.heliohost.org/pitung/mods/manifest.ptm";
 
         private const string SelectGuideText = "Quick guide: join two pegs to select all of the pegs in between (inclusive) and advance to the next group. Press [Z] to modify the next group (there are 4 selection groups). Left click on a peg will either add it to the current group or remove it from any group.";
