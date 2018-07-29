@@ -72,6 +72,7 @@
     <Compile Include="Highlighter.cs" />
     <Compile Include="Editors\Editor.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Mover.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Selection.cs" />

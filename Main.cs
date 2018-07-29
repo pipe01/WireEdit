@@ -13,7 +13,8 @@ namespace WireEdit
     {
         None,
         Selecting,
-        Editing
+        Editing,
+        Moving
     }
 
     public enum Triggers
@@ -76,6 +77,10 @@ namespace WireEdit
                 .OnExit(ExitEditing)
                 .Permit(Triggers.Cancel, States.None)
                 .Permit(Triggers.Confirm, States.None, () => Editing.Instance.Apply());
+
+            State.Configure(States.Moving)
+                .Permit(Triggers.Cancel, States.None)
+                .Permit(Triggers.Confirm, States.None);
         }
 
         private bool LoadLastSelection()
@@ -103,6 +108,7 @@ namespace WireEdit
             RunToggleSelection();
             RunFuckOffSelection();
             RunPollNumberKeys();
+            RunComponentMoving();
         }
 
         private void RunPollNumberKeys()
@@ -192,14 +198,8 @@ namespace WireEdit
                         else //Clicked on component, highlight inputs and outputs and all wires connected to it
                         {
                             var component = ComponentPlacer.FullComponent(hit.collider);
-
-                            //Just get all the wires
-                            foreach (var item in
-                                component.GetComponentsInChildren<CircuitInput>().SelectMany(o =>
-                                    o.IIConnections.Cast<Wire>().Concat(
-                                    o.IOConnections.Cast<Wire>()))
-                                .Concat(component.GetComponentsInChildren<CircuitOutput>().SelectMany(o =>
-                                    o.GetIOConnections().Cast<Wire>())))
+                            
+                            foreach (var item in Mover.GetWires(component))
                             {
                                 HighlightWire(item);
                             }
@@ -230,6 +230,24 @@ namespace WireEdit
             {
                 Highlighted.Add(obj);
                 Highlighter.Highlight(obj, clr);
+            }
+        }
+
+        private void RunComponentMoving()
+        {
+            if (Input.GetMouseButtonDown(1)
+                && Input.GetKey(KeyCode.LeftControl)
+                && State.CurrentState == States.None
+                && Physics.Raycast(FirstPersonInteraction.Ray(), out var hit, Settings.ReachDistance)
+                && hit.collider.tag != "CircuitBoard"
+                && hit.collider.tag != "Wire")
+            {
+                var comp = ComponentPlacer.FullComponent(hit.collider);
+
+                if (comp.GetComponent<ObjectInfo>() != null)
+                {
+                    Mover.BeginMove(comp);
+                }
             }
         }
 

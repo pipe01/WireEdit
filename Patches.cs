@@ -1,4 +1,5 @@
 ﻿using PiTung;
+using PiTung.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,5 +30,38 @@ namespace WireEdit
     {
         [PatchMethod]
         public static bool ScrollThroughMenu() => WireEdit.State.CurrentState == States.None;
+    }
+
+    [Target(typeof(StuffPlacer))]
+    internal static class StuffPlacerPatch
+    {
+        [PatchMethod]
+        public static void PlaceThingBeingPlaced(ref GameObject __state)
+        {
+            __state = StuffPlacer.GetThingBeingPlaced;
+        }
+
+        [PatchMethod("PlaceThingBeingPlaced", PatchType.Postfix)]
+        public static void PlaceThingBeingPlacedPostfix(GameObject __state)
+        {
+            if (Mover.IsMoving && __state != null)
+            {
+                Mover.EndMove(__state);
+            }
+        }
+    }
+    
+    [Target(typeof(BoardPlacer))]
+    internal static class BoardPlacerPatch
+    {
+        [PatchMethod]
+        public static void NewBoardBeingPlaced(GameObject NewBoard)
+        {
+            if (NewBoard != null && !Input.GetKey(KeyCode.LeftControl))
+                Mover.BeginMove(NewBoard);
+        }
+        
+        [PatchMethod]
+        public static void CancelPlacement() => Mover.CancelMove();
     }
 }
