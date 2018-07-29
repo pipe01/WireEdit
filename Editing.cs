@@ -14,6 +14,7 @@ namespace WireEdit
         public static Editing Instance { get; private set; }
 
         private static Editor LastEditor;
+        private static int LastEditorIndex;
         private static readonly IList<Editor> Editors = new List<Editor>();
         public static readonly string[] EditorNames;
         public static readonly string[] EditorDescriptions;
@@ -41,7 +42,7 @@ namespace WireEdit
         {
             SetReferences(references);
 
-            SelectEditor(0);
+            SelectEditor(LastEditorIndex);
         }
         
         private void SetReferences(Transform[][] references)
@@ -73,6 +74,7 @@ namespace WireEdit
 
         public void SelectEditor(int index)
         {
+            LastEditorIndex = index;
             SelectedEditor?.DeletePreview();
             SelectedEditor = Editors[Mathf.Clamp(index, 0, Editors.Count - 1)];
 
