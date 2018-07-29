@@ -92,10 +92,12 @@ namespace WireEdit
                     wire.Point1 = b;
                     wire.Point2 = a;
                 }
-
-
+                
                 if (!WirePlacer.CanConnect(wire))
+                {
+                    GameObject.Destroy(obj);
                     continue;
+                }
 
                 wire.DrawWire();
                 wire.SetPegsBasedOnPoints();
